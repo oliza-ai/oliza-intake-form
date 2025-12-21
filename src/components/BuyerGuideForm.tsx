@@ -12,7 +12,8 @@ const formSchema = z.object({
   agentEmail: z.string().email("Please enter a valid email address"),
   buyerName: z.string().min(1, "Buyer's name is required"),
   buyerSituation: z.string().min(1, "Please select a situation"),
-  targetArea: z.string().min(1, "Please select an area"),
+  targetAreaPrimary: z.string().min(1, "Please select an area"),
+  targetAreaSpecific: z.string().max(100, "Maximum 100 characters").optional(),
   budgetRange: z.array(z.number()).length(2),
   timeline: z.string().min(1, "Please select a timeline"),
   bedrooms: z.string().min(1, "Please select bedrooms"),
@@ -52,118 +53,72 @@ const budgetSteps = [
   4100000, 4200000, 4300000, 4400000, 4500000, 4600000, 4700000, 4800000, 4900000, 5000000
 ];
 
-// Location data grouped by region
-const locationGroups = [
+// Primary search area options with regions and major towns
+const primarySearchAreas = [
   {
-    label: "New Hampshire Seacoast",
+    label: "BROAD REGIONS",
+    icon: "🗺️",
     options: [
-      { value: "portsmouth-nh-seacoast", label: "Portsmouth" },
-      { value: "rye-nh-seacoast", label: "Rye" },
-      { value: "new-castle-nh-seacoast", label: "New Castle" },
-      { value: "hampton-nh-seacoast", label: "Hampton" },
-      { value: "hampton-falls-nh-seacoast", label: "Hampton Falls" },
-      { value: "north-hampton-nh-seacoast", label: "North Hampton" },
-      { value: "seabrook-nh-seacoast", label: "Seabrook" },
-      { value: "exeter-nh-seacoast", label: "Exeter" },
-      { value: "stratham-nh-seacoast", label: "Stratham" },
-      { value: "greenland-nh-seacoast", label: "Greenland" },
-      { value: "newington-nh-seacoast", label: "Newington" },
-    ],
+      "New Hampshire Seacoast",
+      "New Hampshire Lakes Region",
+      "Northern New Hampshire",
+      "Southern New Hampshire (Manchester/Nashua)",
+      "Southern Maine Coast (Kittery to Portland)",
+      "Greater Portland Area",
+      "Mid-Coast Maine (Brunswick to Camden)",
+      "Western Maine Mountains",
+      "Northern/Central Maine"
+    ]
   },
   {
-    label: "New Hampshire Lakes Region",
+    label: "MAJOR TOWNS - NEW HAMPSHIRE",
+    icon: "🏔️",
     options: [
-      { value: "wolfeboro-nh-lakes", label: "Wolfeboro" },
-      { value: "meredith-nh-lakes", label: "Meredith" },
-      { value: "laconia-nh-lakes", label: "Laconia" },
-      { value: "alton-nh-lakes", label: "Alton" },
-      { value: "gilford-nh-lakes", label: "Gilford" },
-      { value: "moultonborough-nh-lakes", label: "Moultonborough" },
-      { value: "center-harbor-nh-lakes", label: "Center Harbor" },
-      { value: "holderness-nh-lakes", label: "Holderness" },
-      { value: "tuftonboro-nh-lakes", label: "Tuftonboro" },
-    ],
+      "Portsmouth",
+      "Dover",
+      "Exeter",
+      "Hampton",
+      "Rye",
+      "Durham",
+      "Wolfeboro",
+      "Laconia",
+      "Meredith",
+      "Manchester",
+      "Nashua",
+      "Concord",
+      "Hanover"
+    ]
   },
   {
-    label: "New Hampshire Other",
+    label: "MAJOR TOWNS - MAINE",
+    icon: "🦞",
     options: [
-      { value: "dover-nh-other", label: "Dover" },
-      { value: "durham-nh-other", label: "Durham" },
-      { value: "newmarket-nh-other", label: "Newmarket" },
-      { value: "rochester-nh-other", label: "Rochester" },
-      { value: "somersworth-nh-other", label: "Somersworth" },
-      { value: "manchester-nh-other", label: "Manchester" },
-      { value: "nashua-nh-other", label: "Nashua" },
-      { value: "concord-nh-other", label: "Concord" },
-      { value: "hanover-nh-other", label: "Hanover" },
-      { value: "keene-nh-other", label: "Keene" },
-    ],
+      "Portland",
+      "South Portland",
+      "Kennebunk",
+      "Kennebunkport",
+      "Scarborough",
+      "Cape Elizabeth",
+      "Freeport",
+      "Brunswick",
+      "Camden",
+      "Rockland",
+      "Bar Harbor",
+      "York",
+      "Kittery",
+      "Biddeford",
+      "Gorham",
+      "Yarmouth",
+      "Bath",
+      "Belfast"
+    ]
   },
   {
-    label: "Southern Maine Coast",
-    options: [
-      { value: "kittery-me-south", label: "Kittery" },
-      { value: "york-me-south", label: "York" },
-      { value: "ogunquit-me-south", label: "Ogunquit" },
-      { value: "wells-me-south", label: "Wells" },
-      { value: "kennebunk-me-south", label: "Kennebunk" },
-      { value: "kennebunkport-me-south", label: "Kennebunkport" },
-      { value: "biddeford-me-south", label: "Biddeford" },
-      { value: "saco-me-south", label: "Saco" },
-      { value: "old-orchard-beach-me-south", label: "Old Orchard Beach" },
-      { value: "scarborough-me-south", label: "Scarborough" },
-      { value: "cape-elizabeth-me-south", label: "Cape Elizabeth" },
-    ],
-  },
-  {
-    label: "Greater Portland (Maine)",
-    options: [
-      { value: "portland-me-greater", label: "Portland" },
-      { value: "south-portland-me-greater", label: "South Portland" },
-      { value: "westbrook-me-greater", label: "Westbrook" },
-      { value: "falmouth-me-greater", label: "Falmouth" },
-      { value: "yarmouth-me-greater", label: "Yarmouth" },
-      { value: "freeport-me-greater", label: "Freeport" },
-      { value: "cumberland-me-greater", label: "Cumberland" },
-      { value: "gorham-me-greater", label: "Gorham" },
-    ],
-  },
-  {
-    label: "Mid-Coast Maine",
-    options: [
-      { value: "brunswick-me-mid", label: "Brunswick" },
-      { value: "bath-me-mid", label: "Bath" },
-      { value: "boothbay-harbor-me-mid", label: "Boothbay Harbor" },
-      { value: "camden-me-mid", label: "Camden" },
-      { value: "rockland-me-mid", label: "Rockland" },
-      { value: "belfast-me-mid", label: "Belfast" },
-      { value: "damariscotta-me-mid", label: "Damariscotta" },
-    ],
-  },
-  {
-    label: "Other",
-    options: [
-      { value: "other", label: "Other (please specify in notes)" },
-    ],
-  },
-];
-
-// Helper to get display name with region
-const getLocationDisplay = (value: string): string => {
-  for (const group of locationGroups) {
-    const option = group.options.find(o => o.value === value);
-    if (option) {
-      if (group.label === "Other") return option.label;
-      const regionShort = group.label.includes("NH") || group.label.includes("New Hampshire") 
-        ? group.label.replace("New Hampshire ", "NH ") 
-        : group.label.includes("Maine") 
-        ? group.label.replace("(Maine)", "ME").replace("Maine", "ME")
-        : group.label;
-      return `${option.label} (${regionShort})`;
-    }
+    label: "OTHER",
+    icon: "📍",
+    options: ["Specific Town (not listed above)"]
   }
-  return value;
-};
+];
 
 const BuyerGuideForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -174,7 +129,8 @@ const BuyerGuideForm: React.FC = () => {
     agentEmail: "",
     buyerName: "",
     buyerSituation: "first-time",
-    targetArea: "portsmouth-nh-seacoast",
+    targetAreaPrimary: "New Hampshire Seacoast",
+    targetAreaSpecific: "",
     budgetRange: [10, 38], // Index for $500K and $1.2M
     timeline: "3-6",
     bedrooms: "3",
@@ -233,7 +189,8 @@ const BuyerGuideForm: React.FC = () => {
 
     const payload = {
       ...data,
-      target_area: getLocationDisplay(data.targetArea),
+      target_area_primary: data.targetAreaPrimary,
+      target_area_specific: data.targetAreaSpecific || "",
       budget_min: minBudget,
       budget_max: maxBudget,
       agent_insights: data.agentInsights || "",
@@ -379,34 +336,35 @@ const BuyerGuideForm: React.FC = () => {
                 />
               </div>
 
-              {/* Target Area */}
+              {/* Primary Search Area */}
               <div>
                 <label className="block text-sm font-medium text-text-label mb-2">
-                  Primary Search Area
+                  Where are they looking?
                 </label>
                 <Controller
-                  name="targetArea"
+                  name="targetAreaPrimary"
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="h-12 text-base">
-                        <SelectValue placeholder="Select area">
-                          {field.value ? getLocationDisplay(field.value) : "Select area"}
+                        <SelectValue placeholder="Select a region or major town">
+                          {field.value || "Select a region or major town"}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="max-h-80">
-                        {locationGroups.map((group) => (
+                        {primarySearchAreas.map((group) => (
                           <div key={group.label}>
-                            <div className="px-2 py-1.5 text-xs font-semibold text-text-tertiary uppercase tracking-wide bg-muted">
-                              {group.label}
+                            <div className="px-2 py-1.5 text-xs font-semibold text-text-tertiary uppercase tracking-wide bg-muted flex items-center gap-1.5">
+                              <span>{group.icon}</span>
+                              <span>{group.label}</span>
                             </div>
                             {group.options.map((option) => (
                               <SelectItem 
-                                key={option.value} 
-                                value={option.value}
+                                key={option} 
+                                value={option}
                                 className="pl-4"
                               >
-                                {option.label}
+                                {option}
                               </SelectItem>
                             ))}
                           </div>
@@ -416,8 +374,28 @@ const BuyerGuideForm: React.FC = () => {
                   )}
                 />
                 <p className="mt-1.5 text-sm text-text-tertiary">
-                  We'll focus the guide on this area
+                  Select a region or major town
                 </p>
+              </div>
+
+              {/* Specific Location Details */}
+              <div>
+                <label className="block text-sm font-medium text-text-label mb-2">
+                  Specific Location Details{" "}
+                  <span className="text-text-tertiary font-normal">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("targetAreaSpecific")}
+                  placeholder="e.g., 'Rangeley area' or 'Portsmouth preferred, but open to Rye or New Castle'"
+                  maxLength={100}
+                  className="form-input"
+                />
+                {errors.targetAreaSpecific && (
+                  <p className="mt-1.5 text-sm text-destructive">
+                    {errors.targetAreaSpecific.message}
+                  </p>
+                )}
               </div>
 
               {/* Budget Range */}
