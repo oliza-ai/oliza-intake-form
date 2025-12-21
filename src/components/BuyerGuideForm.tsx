@@ -198,25 +198,47 @@ const BuyerGuideForm: React.FC = () => {
     const maxBudget = budgetSteps[data.budgetRange[1]];
 
     const payload = {
-      ...data,
+      agent_email: data.agentEmail,
+      buyer_name: data.buyerName,
+      buyer_situation: data.buyerSituation,
       target_area_primary: data.targetAreaPrimary,
       target_area_specific: data.targetAreaSpecific || "",
       budget_min: minBudget,
       budget_max: maxBudget,
+      timeline: data.timeline,
+      bedrooms: data.bedrooms,
+      bathrooms: data.bathrooms,
+      property_types: data.propertyTypes,
+      work_situation: data.workSituation,
+      has_children: data.hasChildren,
+      lifestyle_focus: data.lifestyleFocus,
       agent_insights: data.agentInsights || "",
       brokerage_slug: "duston-leddy",
       intake_pin: "847293",
     };
 
     try {
-      // Simulate API call - replace with actual webhook
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Form submitted:", payload);
-      
+      const response = await fetch(
+        "https://sparkevolution.app.n8n.cloud/webhook/buyer-guide-intake-dev",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Webhook failed: ${response.status}`);
+      }
+
+      console.log("Form submitted successfully:", payload);
       localStorage.removeItem(STORAGE_KEY);
       setIsSuccess(true);
     } catch (error) {
       console.error("Submission failed:", error);
+      alert("Failed to submit. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
