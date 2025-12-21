@@ -21,6 +21,7 @@ const formSchema = z.object({
   workSituation: z.string().min(1, "Please select work arrangement"),
   hasChildren: z.boolean(),
   lifestyleFocus: z.string().min(1, "Please select a lifestyle priority"),
+  agentInsights: z.string().max(500, "Maximum 500 characters").optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -30,19 +31,139 @@ const STORAGE_KEY = "buyer-guide-form-draft";
 // Helper to format budget
 const formatBudget = (value: number): string => {
   if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(1)}M`;
+    const millions = value / 1000000;
+    return millions % 1 === 0 ? `$${millions}M` : `$${millions.toFixed(1)}M`;
   }
   return `$${value / 1000}K`;
 };
 
-// Budget steps
+// Budget steps: $25K from $250K-$1M, $50K from $1M-$2M, $100K from $2M-$5M+
 const budgetSteps = [
-  200000, 225000, 250000, 275000, 300000, 325000, 350000, 375000, 400000, 425000,
-  450000, 475000, 500000, 525000, 550000, 575000, 600000, 625000, 650000, 675000,
-  700000, 725000, 750000, 775000, 800000, 825000, 850000, 875000, 900000, 925000,
-  950000, 975000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000,
-  1700000, 1800000, 1900000, 2000000
+  // $250K - $1M in $25K increments
+  250000, 275000, 300000, 325000, 350000, 375000, 400000, 425000, 450000, 475000,
+  500000, 525000, 550000, 575000, 600000, 625000, 650000, 675000, 700000, 725000,
+  750000, 775000, 800000, 825000, 850000, 875000, 900000, 925000, 950000, 975000, 1000000,
+  // $1M - $2M in $50K increments
+  1050000, 1100000, 1150000, 1200000, 1250000, 1300000, 1350000, 1400000, 1450000, 1500000,
+  1550000, 1600000, 1650000, 1700000, 1750000, 1800000, 1850000, 1900000, 1950000, 2000000,
+  // $2M - $5M+ in $100K increments
+  2100000, 2200000, 2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000,
+  3100000, 3200000, 3300000, 3400000, 3500000, 3600000, 3700000, 3800000, 3900000, 4000000,
+  4100000, 4200000, 4300000, 4400000, 4500000, 4600000, 4700000, 4800000, 4900000, 5000000
 ];
+
+// Location data grouped by region
+const locationGroups = [
+  {
+    label: "New Hampshire Seacoast",
+    options: [
+      { value: "portsmouth-nh-seacoast", label: "Portsmouth" },
+      { value: "rye-nh-seacoast", label: "Rye" },
+      { value: "new-castle-nh-seacoast", label: "New Castle" },
+      { value: "hampton-nh-seacoast", label: "Hampton" },
+      { value: "hampton-falls-nh-seacoast", label: "Hampton Falls" },
+      { value: "north-hampton-nh-seacoast", label: "North Hampton" },
+      { value: "seabrook-nh-seacoast", label: "Seabrook" },
+      { value: "exeter-nh-seacoast", label: "Exeter" },
+      { value: "stratham-nh-seacoast", label: "Stratham" },
+      { value: "greenland-nh-seacoast", label: "Greenland" },
+      { value: "newington-nh-seacoast", label: "Newington" },
+    ],
+  },
+  {
+    label: "New Hampshire Lakes Region",
+    options: [
+      { value: "wolfeboro-nh-lakes", label: "Wolfeboro" },
+      { value: "meredith-nh-lakes", label: "Meredith" },
+      { value: "laconia-nh-lakes", label: "Laconia" },
+      { value: "alton-nh-lakes", label: "Alton" },
+      { value: "gilford-nh-lakes", label: "Gilford" },
+      { value: "moultonborough-nh-lakes", label: "Moultonborough" },
+      { value: "center-harbor-nh-lakes", label: "Center Harbor" },
+      { value: "holderness-nh-lakes", label: "Holderness" },
+      { value: "tuftonboro-nh-lakes", label: "Tuftonboro" },
+    ],
+  },
+  {
+    label: "New Hampshire Other",
+    options: [
+      { value: "dover-nh-other", label: "Dover" },
+      { value: "durham-nh-other", label: "Durham" },
+      { value: "newmarket-nh-other", label: "Newmarket" },
+      { value: "rochester-nh-other", label: "Rochester" },
+      { value: "somersworth-nh-other", label: "Somersworth" },
+      { value: "manchester-nh-other", label: "Manchester" },
+      { value: "nashua-nh-other", label: "Nashua" },
+      { value: "concord-nh-other", label: "Concord" },
+      { value: "hanover-nh-other", label: "Hanover" },
+      { value: "keene-nh-other", label: "Keene" },
+    ],
+  },
+  {
+    label: "Southern Maine Coast",
+    options: [
+      { value: "kittery-me-south", label: "Kittery" },
+      { value: "york-me-south", label: "York" },
+      { value: "ogunquit-me-south", label: "Ogunquit" },
+      { value: "wells-me-south", label: "Wells" },
+      { value: "kennebunk-me-south", label: "Kennebunk" },
+      { value: "kennebunkport-me-south", label: "Kennebunkport" },
+      { value: "biddeford-me-south", label: "Biddeford" },
+      { value: "saco-me-south", label: "Saco" },
+      { value: "old-orchard-beach-me-south", label: "Old Orchard Beach" },
+      { value: "scarborough-me-south", label: "Scarborough" },
+      { value: "cape-elizabeth-me-south", label: "Cape Elizabeth" },
+    ],
+  },
+  {
+    label: "Greater Portland (Maine)",
+    options: [
+      { value: "portland-me-greater", label: "Portland" },
+      { value: "south-portland-me-greater", label: "South Portland" },
+      { value: "westbrook-me-greater", label: "Westbrook" },
+      { value: "falmouth-me-greater", label: "Falmouth" },
+      { value: "yarmouth-me-greater", label: "Yarmouth" },
+      { value: "freeport-me-greater", label: "Freeport" },
+      { value: "cumberland-me-greater", label: "Cumberland" },
+      { value: "gorham-me-greater", label: "Gorham" },
+    ],
+  },
+  {
+    label: "Mid-Coast Maine",
+    options: [
+      { value: "brunswick-me-mid", label: "Brunswick" },
+      { value: "bath-me-mid", label: "Bath" },
+      { value: "boothbay-harbor-me-mid", label: "Boothbay Harbor" },
+      { value: "camden-me-mid", label: "Camden" },
+      { value: "rockland-me-mid", label: "Rockland" },
+      { value: "belfast-me-mid", label: "Belfast" },
+      { value: "damariscotta-me-mid", label: "Damariscotta" },
+    ],
+  },
+  {
+    label: "Other",
+    options: [
+      { value: "other", label: "Other (please specify in notes)" },
+    ],
+  },
+];
+
+// Helper to get display name with region
+const getLocationDisplay = (value: string): string => {
+  for (const group of locationGroups) {
+    const option = group.options.find(o => o.value === value);
+    if (option) {
+      if (group.label === "Other") return option.label;
+      const regionShort = group.label.includes("NH") || group.label.includes("New Hampshire") 
+        ? group.label.replace("New Hampshire ", "NH ") 
+        : group.label.includes("Maine") 
+        ? group.label.replace("(Maine)", "ME").replace("Maine", "ME")
+        : group.label;
+      return `${option.label} (${regionShort})`;
+    }
+  }
+  return value;
+};
 
 const BuyerGuideForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,8 +174,8 @@ const BuyerGuideForm: React.FC = () => {
     agentEmail: "",
     buyerName: "",
     buyerSituation: "first-time",
-    targetArea: "portsmouth",
-    budgetRange: [14, 26], // Index for $400K and $800K
+    targetArea: "portsmouth-nh-seacoast",
+    budgetRange: [10, 38], // Index for $500K and $1.2M
     timeline: "3-6",
     bedrooms: "3",
     bathrooms: "2",
@@ -62,6 +183,7 @@ const BuyerGuideForm: React.FC = () => {
     workSituation: "hybrid",
     hasChildren: false,
     lifestyleFocus: "suburban",
+    agentInsights: "",
   };
 
   const {
@@ -111,8 +233,10 @@ const BuyerGuideForm: React.FC = () => {
 
     const payload = {
       ...data,
-      budgetMin: minBudget,
-      budgetMax: maxBudget,
+      target_area: getLocationDisplay(data.targetArea),
+      budget_min: minBudget,
+      budget_max: maxBudget,
+      agent_insights: data.agentInsights || "",
       brokerage_slug: "duston-leddy",
       intake_pin: "847293",
     };
@@ -258,7 +382,7 @@ const BuyerGuideForm: React.FC = () => {
               {/* Target Area */}
               <div>
                 <label className="block text-sm font-medium text-text-label mb-2">
-                  Where are they looking?
+                  Primary Search Area
                 </label>
                 <Controller
                   name="targetArea"
@@ -266,18 +390,27 @@ const BuyerGuideForm: React.FC = () => {
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="h-12 text-base">
-                        <SelectValue placeholder="Select area" />
+                        <SelectValue placeholder="Select area">
+                          {field.value ? getLocationDisplay(field.value) : "Select area"}
+                        </SelectValue>
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="portsmouth">Portsmouth</SelectItem>
-                        <SelectItem value="dover">Dover</SelectItem>
-                        <SelectItem value="rye">Rye</SelectItem>
-                        <SelectItem value="hampton">Hampton</SelectItem>
-                        <SelectItem value="exeter">Exeter</SelectItem>
-                        <SelectItem value="durham">Durham</SelectItem>
-                        <SelectItem value="newmarket">Newmarket</SelectItem>
-                        <SelectItem value="stratham">Stratham</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                      <SelectContent className="max-h-80">
+                        {locationGroups.map((group) => (
+                          <div key={group.label}>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-text-tertiary uppercase tracking-wide bg-muted">
+                              {group.label}
+                            </div>
+                            {group.options.map((option) => (
+                              <SelectItem 
+                                key={option.value} 
+                                value={option.value}
+                                className="pl-4"
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </div>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
@@ -635,6 +768,48 @@ const BuyerGuideForm: React.FC = () => {
                   )}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Section 4: Agent Insights (Optional) */}
+          <div className="mb-10">
+            <h2 className="font-heading font-semibold text-lg text-foreground mb-1">
+              Anything Special We Should Know?
+            </h2>
+            <p className="text-sm text-text-tertiary mb-4">
+              Optional - Share unique details that would make this guide personal
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium text-text-label mb-2">
+                Special Notes <span className="text-text-tertiary font-normal">(optional)</span>
+              </label>
+              <Controller
+                name="agentInsights"
+                control={control}
+                render={({ field }) => (
+                  <div className="relative">
+                    <textarea
+                      {...field}
+                      placeholder={`Examples:\n• Their dog Bailey loves waterfront parks\n• They're foodies - highlight restaurants\n• Hate traffic - emphasize quiet commutes\n• Love Italian food - mention Michelin spots\n• Relocating from [city] - compare lifestyle`}
+                      rows={4}
+                      maxLength={500}
+                      className="form-input min-h-[100px] max-h-[200px] resize-y"
+                    />
+                    <span className="absolute bottom-2 right-3 text-xs text-text-tertiary">
+                      {field.value?.length || 0}/500
+                    </span>
+                  </div>
+                )}
+              />
+              {errors.agentInsights && (
+                <p className="mt-1.5 text-sm text-destructive">
+                  {errors.agentInsights.message}
+                </p>
+              )}
+              <p className="mt-2 text-sm text-text-tertiary italic">
+                These insights help us personalize neighborhood recommendations and lifestyle details.
+              </p>
             </div>
           </div>
 
