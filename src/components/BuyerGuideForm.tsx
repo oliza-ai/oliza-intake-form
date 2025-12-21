@@ -5,7 +5,10 @@ import { z } from "zod";
 import { Check, Loader2, Home, Building2, Building, Sparkles, Briefcase, Laptop, Monitor, Palmtree, TreePine, MapPin, HomeIcon, Zap } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/duston-leddy-logo.png";
+
+const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
 // Form validation schema
 const formSchema = z.object({
@@ -189,6 +192,8 @@ const BuyerGuideForm: React.FC = () => {
     return () => clearTimeout(timer);
   }, [watchedValues]);
 
+  const { toast } = useToast();
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     setSubmittedEmail(data.agentEmail);
@@ -198,11 +203,13 @@ const BuyerGuideForm: React.FC = () => {
     const maxBudget = budgetSteps[data.budgetRange[1]];
 
     const payload = {
+      brokerage_slug: "duston-leddy",
+      intake_pin: "847293",
       agent_email: data.agentEmail,
       buyer_name: data.buyerName,
       buyer_situation: data.buyerSituation,
-      target_area_primary: data.targetAreaPrimary,
-      target_area_specific: data.targetAreaSpecific || "",
+      primary_search_area: data.targetAreaPrimary,
+      specific_location_notes: data.targetAreaSpecific || "",
       budget_min: minBudget,
       budget_max: maxBudget,
       timeline: data.timeline,
@@ -213,21 +220,16 @@ const BuyerGuideForm: React.FC = () => {
       has_children: data.hasChildren,
       lifestyle_focus: data.lifestyleFocus,
       agent_insights: data.agentInsights || "",
-      brokerage_slug: "duston-leddy",
-      intake_pin: "847293",
     };
 
     try {
-      const response = await fetch(
-        "https://sparkevolution.app.n8n.cloud/webhook/buyer-guide-intake-dev",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
         throw new Error(`Webhook failed: ${response.status}`);
@@ -236,9 +238,17 @@ const BuyerGuideForm: React.FC = () => {
       console.log("Form submitted successfully:", payload);
       localStorage.removeItem(STORAGE_KEY);
       setIsSuccess(true);
+      toast({
+        title: "Success!",
+        description: `Your guide for ${data.buyerName} is being generated. Check your email in 3-5 minutes.`,
+      });
     } catch (error) {
       console.error("Submission failed:", error);
-      alert("Failed to submit. Please try again.");
+      toast({
+        title: "Submission failed",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
