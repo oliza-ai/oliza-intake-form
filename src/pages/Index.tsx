@@ -1,13 +1,18 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import BuyerGuideForm from "@/components/BuyerGuideForm";
+import { Helmet } from "react-helmet-async";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <>
+      <Helmet>
+        <title>Generate Buyer Guide | Duston Leddy Real Estate</title>
+        <meta
+          name="description"
+          content="Create a personalized 10-page market guide for your real estate buyers in under 90 seconds. Professional, beautiful, and effortless."
+        />
+      </Helmet>
+      <BuyerGuideForm />
+    </>
   );
 };
 
