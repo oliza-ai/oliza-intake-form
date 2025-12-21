@@ -163,10 +163,20 @@ const BuyerGuideForm: React.FC = () => {
       try {
         const parsed = JSON.parse(saved);
         Object.keys(parsed).forEach((key) => {
-          setValue(key as keyof FormData, parsed[key]);
+          // Ensure budgetRange is always an array
+          if (key === "budgetRange") {
+            const value = parsed[key];
+            if (Array.isArray(value) && value.length === 2) {
+              setValue(key as keyof FormData, value);
+            }
+          } else if (key !== "targetArea") {
+            // Skip old targetArea field, use new fields
+            setValue(key as keyof FormData, parsed[key]);
+          }
         });
       } catch (e) {
         console.error("Failed to parse saved form data");
+        localStorage.removeItem(STORAGE_KEY);
       }
     }
   }, [setValue]);
