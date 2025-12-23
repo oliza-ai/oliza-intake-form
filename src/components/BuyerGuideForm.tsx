@@ -15,17 +15,20 @@ const formSchema = z.object({
   agentEmail: z.string().email("Please enter a valid email address"),
   buyerName: z.string().min(1, "Buyer's name is required"),
   buyerSituation: z.string().min(1, "Please select a situation"),
+  currentHome: z.string().max(300, "Maximum 300 characters").optional(),
   targetAreaPrimary: z.string().min(1, "Please select an area"),
   targetAreaSpecific: z.string().max(100, "Maximum 100 characters").optional(),
+  commuteDestination: z.string().max(100, "Maximum 100 characters").optional(),
   budgetRange: z.array(z.number()).length(2),
   timeline: z.string().min(1, "Please select a timeline"),
   bedrooms: z.string().min(1, "Please select bedrooms"),
   bathrooms: z.string().min(1, "Please select bathrooms"),
   propertyTypes: z.array(z.string()).min(1, "Select at least one property type"),
+  topPriority: z.string().min(1, "Please select a top priority"),
   workSituation: z.string().min(1, "Please select work arrangement"),
   hasChildren: z.boolean(),
   lifestyleFocus: z.string().min(1, "Please select a lifestyle priority"),
-  agentInsights: z.string().max(500, "Maximum 500 characters").optional(),
+  agentInsights: z.string().min(200, "Please provide at least 200 characters").max(500, "Maximum 500 characters"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -132,13 +135,16 @@ const BuyerGuideForm: React.FC = () => {
     agentEmail: "",
     buyerName: "",
     buyerSituation: "first-time",
+    currentHome: "",
     targetAreaPrimary: "New Hampshire Seacoast",
     targetAreaSpecific: "",
+    commuteDestination: "",
     budgetRange: [10, 38], // Index for $500K and $1.2M
     timeline: "3-6",
     bedrooms: "3",
     bathrooms: "2",
     propertyTypes: ["single-family"],
+    topPriority: "",
     workSituation: "hybrid",
     hasChildren: false,
     lifestyleFocus: "suburban",
@@ -208,18 +214,21 @@ const BuyerGuideForm: React.FC = () => {
       agent_email: data.agentEmail,
       buyer_name: data.buyerName,
       buyer_situation: data.buyerSituation,
+      current_home: data.currentHome || "",
       primary_search_area: data.targetAreaPrimary,
       specific_location_notes: data.targetAreaSpecific || "",
+      commute_destination: data.commuteDestination || "",
       budget_min: minBudget,
       budget_max: maxBudget,
       timeline: data.timeline,
       bedrooms: data.bedrooms,
       bathrooms: data.bathrooms,
       property_types: data.propertyTypes,
+      top_priority: data.topPriority,
       work_situation: data.workSituation,
       has_children: data.hasChildren,
       lifestyle_focus: data.lifestyleFocus,
-      agent_insights: data.agentInsights || "",
+      agent_insights: data.agentInsights,
     };
 
     try {
@@ -378,6 +387,34 @@ const BuyerGuideForm: React.FC = () => {
                 />
               </div>
 
+              {/* Current Living Situation */}
+              <div>
+                <label className="block text-sm font-medium text-text-label mb-1">
+                  Current Living Situation
+                </label>
+                <span className="block text-sm text-text-tertiary mb-2">
+                  Optional: Where do they live now? Renting/owning? Why moving?
+                </span>
+                <Controller
+                  name="currentHome"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="relative">
+                      <textarea
+                        {...field}
+                        placeholder="Example: Renting in Boston, tired of city noise, wants yard for kids..."
+                        rows={3}
+                        maxLength={300}
+                        className="form-input min-h-[80px] max-h-[150px] resize-y"
+                      />
+                      <span className="absolute bottom-2 right-3 text-xs text-text-tertiary">
+                        {field.value?.length || 0}/300
+                      </span>
+                    </div>
+                  )}
+                />
+              </div>
+
               {/* Primary Search Area */}
               <div>
                 <label className="block text-sm font-medium text-text-label mb-2">
@@ -438,6 +475,23 @@ const BuyerGuideForm: React.FC = () => {
                     {errors.targetAreaSpecific.message}
                   </p>
                 )}
+              </div>
+
+              {/* Commute Destination */}
+              <div>
+                <label className="block text-sm font-medium text-text-label mb-1">
+                  Commute Destination
+                </label>
+                <span className="block text-sm text-text-tertiary mb-2">
+                  Optional: Where does buyer need to commute?
+                </span>
+                <input
+                  type="text"
+                  {...register("commuteDestination")}
+                  placeholder="Example: Portsmouth Naval Shipyard, Boston, etc."
+                  maxLength={100}
+                  className="form-input"
+                />
               </div>
 
               {/* Budget Range */}
@@ -619,6 +673,42 @@ const BuyerGuideForm: React.FC = () => {
                   )}
                 />
               </div>
+
+              {/* Top Priority */}
+              <div>
+                <label className="block text-sm font-medium text-text-label mb-1">
+                  Top Priority <span className="text-destructive">*</span>
+                </label>
+                <span className="block text-sm text-text-tertiary mb-2">
+                  What matters most to this buyer?
+                </span>
+                <Controller
+                  name="topPriority"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder="Select priority..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="waterfront">Waterfront/Water Views</SelectItem>
+                        <SelectItem value="schools">Top-Rated Schools</SelectItem>
+                        <SelectItem value="walkable">Walkable Downtown</SelectItem>
+                        <SelectItem value="privacy">Privacy/Large Lot</SelectItem>
+                        <SelectItem value="modern">Modern/New Construction</SelectItem>
+                        <SelectItem value="historic">Historic Charm</SelectItem>
+                        <SelectItem value="investment">Investment Property</SelectItem>
+                        <SelectItem value="commute">Short Commute</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.topPriority && (
+                  <p className="mt-1.5 text-sm text-destructive">
+                    {errors.topPriority.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -791,19 +881,16 @@ const BuyerGuideForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 4: Agent Insights (Optional) */}
+          {/* Section 4: Agent Insights (Required) */}
           <div className="mb-10">
             <h2 className="font-heading font-semibold text-lg text-foreground mb-1">
-              Anything Special We Should Know?
+              Agent Insights <span className="text-destructive">*</span>
             </h2>
             <p className="text-sm text-text-tertiary mb-4">
-              Optional - Share unique details that would make this guide personal
+              REQUIRED: Tell us the buyer's story, preferences, and must-haves (200-500 characters)
             </p>
 
             <div>
-              <label className="block text-sm font-medium text-text-label mb-2">
-                Special Notes <span className="text-text-tertiary font-normal">(optional)</span>
-              </label>
               <Controller
                 name="agentInsights"
                 control={control}
@@ -811,13 +898,15 @@ const BuyerGuideForm: React.FC = () => {
                   <div className="relative">
                     <textarea
                       {...field}
-                      placeholder={`Examples:\n• Their dog Bailey loves waterfront parks\n• They're foodies - highlight restaurants\n• Hate traffic - emphasize quiet commutes\n• Love Italian food - mention Michelin spots\n• Relocating from [city] - compare lifestyle`}
+                      placeholder="Example: Sarah and Mike are relocating from Boston. She's a teacher who loves Prescott Park. They want a historic home with character near downtown. Deal-breaker: HOAs with strict rules. They kayak every weekend and need water access..."
                       rows={4}
                       maxLength={500}
-                      className="form-input min-h-[100px] max-h-[200px] resize-y"
+                      className="form-input min-h-[120px] max-h-[200px] resize-y"
                     />
-                    <span className="absolute bottom-2 right-3 text-xs text-text-tertiary">
-                      {field.value?.length || 0}/500
+                    <span className={`absolute bottom-2 right-3 text-xs ${
+                      (field.value?.length || 0) < 200 ? "text-amber-500" : "text-text-tertiary"
+                    }`}>
+                      {field.value?.length || 0}/500 {(field.value?.length || 0) < 200 && `(min 200)`}
                     </span>
                   </div>
                 )}
