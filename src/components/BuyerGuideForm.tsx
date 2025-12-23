@@ -157,6 +157,7 @@ const BuyerGuideForm: React.FC = () => {
     control,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -246,6 +247,7 @@ const BuyerGuideForm: React.FC = () => {
 
       console.log("Form submitted successfully:", payload);
       localStorage.removeItem(STORAGE_KEY);
+      reset(defaultValues);
       setIsSuccess(true);
       toast({
         title: "Success!",
