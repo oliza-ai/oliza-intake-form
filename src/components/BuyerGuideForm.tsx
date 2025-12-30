@@ -8,7 +8,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/duston-leddy-logo.png";
 
-const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL;
+// Determine webhook URL based on environment
+const getWebhookUrl = () => {
+  const hostname = window.location.hostname;
+  if (hostname === "app.oliza.ai") {
+    return "https://sparkevolution.app.n8n.cloud/webhook/buyer-guide-intake-prod";
+  }
+  // dev.oliza.ai, localhost, or any other hostname uses dev endpoint
+  return "https://sparkevolution.app.n8n.cloud/webhook/buyer-guide-intake-dev";
+};
+
+const WEBHOOK_URL = getWebhookUrl();
 
 // Form validation schema
 const formSchema = z.object({
