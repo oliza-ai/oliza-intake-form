@@ -312,7 +312,6 @@ const BuyerGuideForm: React.FC = () => {
       <div className="w-full max-w-[600px] mx-auto">
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="text-destructive font-bold text-sm mb-2">FINAL TEST PLEASE WORK</div>
           <img
             src={logo}
             alt="Duston Leddy Real Estate"
