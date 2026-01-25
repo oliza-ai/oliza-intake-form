@@ -318,7 +318,7 @@ const BuyerGuideForm: React.FC = () => {
             className="h-10 md:h-12 mx-auto mb-6"
           />
           <h1 className="font-heading font-semibold text-[28px] md:text-[32px] text-foreground mb-2">
-            Generate a Buyer Guide
+            Generate Buyer Guide
           </h1>
           <p className="text-text-tertiary text-base">
             Complete in 90 seconds · Your buyer will receive a personalized 10-page market guide
