@@ -902,7 +902,7 @@ const BuyerGuideForm: React.FC = () => {
               Agent Insights <span className="text-destructive">*</span>
             </h2>
             <p className="text-sm text-text-tertiary mb-4">
-              REQUIRED: Tell us the buyer's story, preferences, and must-haves (200-1200 characters)
+              REQUIRED: Include why they're moving, must-haves, dealbreakers, vibe they want, and 2-3 "human" details.
             </p>
 
             <div>
