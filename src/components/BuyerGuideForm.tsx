@@ -324,7 +324,7 @@ const BuyerGuideForm: React.FC = () => {
             Generate Buyer Guide
           </h1>
           <p className="text-text-tertiary text-base">
-            Complete in under 3 minutes<br />You'll receive a personalized presentation to share with your buyer
+            Get a personalized market presentation for your buyer in under 3 minutes
           </p>
         </div>
 
