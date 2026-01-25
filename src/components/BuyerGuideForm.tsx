@@ -333,10 +333,6 @@ const BuyerGuideForm: React.FC = () => {
         >
           {/* Section 1: Buyer Basics */}
           <div className="mb-8">
-            <h2 className="font-heading font-semibold text-lg text-foreground mb-4">
-              About Your Buyer
-            </h2>
-
             <div className="space-y-5">
               {/* Agent Email */}
               <div>
@@ -355,6 +351,10 @@ const BuyerGuideForm: React.FC = () => {
                   </p>
                 )}
               </div>
+
+              <h2 className="font-heading font-semibold text-lg text-foreground pt-2">
+                About Your Buyer
+              </h2>
 
               {/* Buyer Name */}
               <div>
