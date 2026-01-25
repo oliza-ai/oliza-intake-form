@@ -38,7 +38,7 @@ const formSchema = z.object({
   workSituation: z.string().min(1, "Please select work arrangement"),
   hasChildren: z.boolean(),
   lifestyleFocus: z.string().min(1, "Please select a lifestyle priority"),
-  agentInsights: z.string().min(200, "Please provide at least 200 characters").max(500, "Maximum 500 characters"),
+  agentInsights: z.string().min(200, "Please provide at least 200 characters").max(1200, "Maximum 1200 characters"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -902,7 +902,7 @@ const BuyerGuideForm: React.FC = () => {
               Agent Insights <span className="text-destructive">*</span>
             </h2>
             <p className="text-sm text-text-tertiary mb-4">
-              REQUIRED: Tell us the buyer's story, preferences, and must-haves (200-500 characters)
+              REQUIRED: Tell us the buyer's story, preferences, and must-haves (200-1200 characters)
             </p>
 
             <div>
@@ -915,13 +915,13 @@ const BuyerGuideForm: React.FC = () => {
                       {...field}
                       placeholder="Example: Sarah and Mike are relocating from Boston. She's a teacher who loves Prescott Park. They want a historic home with character near downtown. Deal-breaker: HOAs with strict rules. They kayak every weekend and need water access..."
                       rows={4}
-                      maxLength={500}
+                      maxLength={1200}
                       className="form-input min-h-[120px] max-h-[200px] resize-y"
                     />
                     <span className={`absolute bottom-2 right-3 text-xs ${
                       (field.value?.length || 0) < 200 ? "text-amber-500" : "text-text-tertiary"
                     }`}>
-                      {field.value?.length || 0}/500 {(field.value?.length || 0) < 200 && `(min 200)`}
+                      {field.value?.length || 0}/1200 {(field.value?.length || 0) < 200 && `(min 200)`}
                     </span>
                   </div>
                 )}
