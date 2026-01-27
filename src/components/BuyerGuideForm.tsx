@@ -38,7 +38,7 @@ const formSchema = z.object({
   workSituation: z.string().min(1, "Please select work arrangement"),
   hasChildren: z.boolean(),
   lifestyleFocus: z.string().min(1, "Please select a lifestyle priority"),
-  agentInsights: z.string().min(200, "Please provide at least 200 characters").max(500, "Maximum 500 characters"),
+  agentInsights: z.string().min(200, "Please provide at least 200 characters").max(1200, "Maximum 1200 characters"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -54,7 +54,7 @@ const formatBudget = (value: number): string => {
   return `$${value / 1000}K`;
 };
 
-// Budget steps: $25K from $250K-$1M, $50K from $1M-$2M, $100K from $2M-$5M+
+// Budget steps: $25K from $250K-$1M, $50K from $1M-$2M, $100K from $2M-$5M, $250K from $5M-$10M
 const budgetSteps = [
   // $250K - $1M in $25K increments
   250000, 275000, 300000, 325000, 350000, 375000, 400000, 425000, 450000, 475000,
@@ -63,10 +63,13 @@ const budgetSteps = [
   // $1M - $2M in $50K increments
   1050000, 1100000, 1150000, 1200000, 1250000, 1300000, 1350000, 1400000, 1450000, 1500000,
   1550000, 1600000, 1650000, 1700000, 1750000, 1800000, 1850000, 1900000, 1950000, 2000000,
-  // $2M - $5M+ in $100K increments
+  // $2M - $5M in $100K increments
   2100000, 2200000, 2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000,
   3100000, 3200000, 3300000, 3400000, 3500000, 3600000, 3700000, 3800000, 3900000, 4000000,
-  4100000, 4200000, 4300000, 4400000, 4500000, 4600000, 4700000, 4800000, 4900000, 5000000
+  4100000, 4200000, 4300000, 4400000, 4500000, 4600000, 4700000, 4800000, 4900000, 5000000,
+  // $5M - $10M in $250K increments
+  5250000, 5500000, 5750000, 6000000, 6250000, 6500000, 6750000, 7000000, 7250000, 7500000,
+  7750000, 8000000, 8250000, 8500000, 8750000, 9000000, 9250000, 9500000, 9750000, 10000000
 ];
 
 // Primary search area options with regions and major towns
@@ -318,10 +321,10 @@ const BuyerGuideForm: React.FC = () => {
             className="h-10 md:h-12 mx-auto mb-6"
           />
           <h1 className="font-heading font-semibold text-[28px] md:text-[32px] text-foreground mb-2">
-            Generate a Buyer Guide
+            Generate Buyer Guide
           </h1>
           <p className="text-text-tertiary text-base">
-            Complete in 90 seconds · Your buyer will receive a personalized 10-page market guide
+            Get a personalized market presentation for your buyer in under 3 minutes
           </p>
         </div>
 
@@ -333,10 +336,6 @@ const BuyerGuideForm: React.FC = () => {
         >
           {/* Section 1: Buyer Basics */}
           <div className="mb-8">
-            <h2 className="font-heading font-semibold text-lg text-foreground mb-4">
-              About Your Buyer
-            </h2>
-
             <div className="space-y-5">
               {/* Agent Email */}
               <div>
@@ -355,6 +354,10 @@ const BuyerGuideForm: React.FC = () => {
                   </p>
                 )}
               </div>
+
+              <h2 className="font-heading font-semibold text-lg text-foreground pt-2">
+                About Your Buyer
+              </h2>
 
               {/* Buyer Name */}
               <div>
@@ -899,7 +902,7 @@ const BuyerGuideForm: React.FC = () => {
               Agent Insights <span className="text-destructive">*</span>
             </h2>
             <p className="text-sm text-text-tertiary mb-4">
-              REQUIRED: Tell us the buyer's story, preferences, and must-haves (200-500 characters)
+              REQUIRED: Include why they're moving, must-haves, dealbreakers, vibe they want, and 2-3 "human" details.
             </p>
 
             <div>
@@ -912,13 +915,13 @@ const BuyerGuideForm: React.FC = () => {
                       {...field}
                       placeholder="Example: Sarah and Mike are relocating from Boston. She's a teacher who loves Prescott Park. They want a historic home with character near downtown. Deal-breaker: HOAs with strict rules. They kayak every weekend and need water access..."
                       rows={4}
-                      maxLength={500}
+                      maxLength={1200}
                       className="form-input min-h-[120px] max-h-[200px] resize-y"
                     />
                     <span className={`absolute bottom-2 right-3 text-xs ${
                       (field.value?.length || 0) < 200 ? "text-amber-500" : "text-text-tertiary"
                     }`}>
-                      {field.value?.length || 0}/500 {(field.value?.length || 0) < 200 && `(min 200)`}
+                      {field.value?.length || 0}/1200 {(field.value?.length || 0) < 200 && `(min 200)`}
                     </span>
                   </div>
                 )}
