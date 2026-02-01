@@ -81,10 +81,10 @@ const primarySearchAreas = [
       "New Hampshire Seacoast",
       "New Hampshire Lakes Region",
       "Northern New Hampshire",
-      "Southern New Hampshire (Manchester/Nashua)",
-      "Southern Maine Coast (Kittery to Portland)",
+      "Southern New Hampshire",
+      "Southern Maine Coast",
       "Greater Portland Area",
-      "Mid-Coast Maine (Brunswick to Camden)",
+      "Mid-Coast Maine",
       "Western Maine Mountains",
       "Northern/Central Maine"
     ]
