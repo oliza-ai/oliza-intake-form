@@ -1,0 +1,239 @@
+{
+  "formName": "Buyer Guide Intake Form",
+  "totalFields": 17,
+  "fields": [
+    {
+      "technicalName": "agentEmail",
+      "exportName": "agent_email",
+      "label": "Your Email",
+      "type": "email",
+      "required": true,
+      "validation": "Valid email address",
+      "placeholder": "agent@dustonleddy.com"
+    },
+    {
+      "technicalName": "buyerName",
+      "exportName": "buyer_name",
+      "label": "Buyer's Name",
+      "type": "text",
+      "required": true,
+      "placeholder": "Sarah and Mike Johnson"
+    },
+    {
+      "technicalName": "buyerSituation",
+      "exportName": "buyer_situation",
+      "label": "Their Situation",
+      "type": "select",
+      "required": true,
+      "defaultValue": "first-time",
+      "options": [
+        { "value": "first-time", "label": "First-Time Buyer" },
+        { "value": "relocating", "label": "Relocating to Area" },
+        { "value": "upsizing", "label": "Upsizing" },
+        { "value": "downsizing", "label": "Downsizing" },
+        { "value": "investment", "label": "Investment Property" }
+      ]
+    },
+    {
+      "technicalName": "currentHome",
+      "exportName": "current_home",
+      "label": "Current Living Situation",
+      "type": "textarea",
+      "required": false,
+      "maxLength": 300,
+      "placeholder": "Example: Renting in Boston, tired of city noise, wants yard for kids..."
+    },
+    {
+      "technicalName": "state",
+      "exportName": "state",
+      "label": "What state are you looking in?",
+      "type": "select",
+      "required": true,
+      "options": [
+        { "value": "Maine", "label": "Maine" },
+        { "value": "New Hampshire", "label": "New Hampshire" }
+      ]
+    },
+    {
+      "technicalName": "targetAreaPrimary",
+      "exportName": "primary_search_area",
+      "label": "Which region are you interested in?",
+      "type": "select",
+      "required": true,
+      "conditionalOn": "state",
+      "optionsByState": {
+        "Maine": [
+          "Southern Maine Coast",
+          "Greater Portland Area",
+          "Mid-Coast Maine",
+          "Western Maine Mountains",
+          "Northern / Central Maine",
+          "Specific Town (not listed above)"
+        ],
+        "New Hampshire": [
+          "New Hampshire Seacoast",
+          "Southern New Hampshire",
+          "New Hampshire Lakes Region",
+          "New Hampshire White Mountains",
+          "Specific Town (not listed above)"
+        ]
+      }
+    },
+    {
+      "technicalName": "targetAreaSpecific",
+      "exportName": "specific_location_notes",
+      "label": "Specific Location Details",
+      "type": "text",
+      "required": false,
+      "maxLength": 100,
+      "placeholder": "Any specific neighborhoods, streets, or areas?"
+    },
+    {
+      "technicalName": "commuteDestination",
+      "exportName": "commute_destination",
+      "label": "Commute Destination",
+      "type": "text",
+      "required": false,
+      "maxLength": 100,
+      "placeholder": "Example: Downtown Boston, UNH, Portsmouth Naval..."
+    },
+    {
+      "technicalName": "budgetRange",
+      "exportName": ["budget_min", "budget_max"],
+      "label": "Budget Range",
+      "type": "dual-slider",
+      "required": true,
+      "defaultValue": [10, 38],
+      "defaultBudget": ["$500K", "$1.2M"],
+      "range": {
+        "min": "$250K",
+        "max": "$10M"
+      },
+      "steps": "Variable: $25K from $250K-$1M, $50K from $1M-$2M, $100K from $2M-$5M, $250K from $5M-$10M"
+    },
+    {
+      "technicalName": "timeline",
+      "exportName": "timeline",
+      "label": "Timeline",
+      "type": "select",
+      "required": true,
+      "defaultValue": "3-6",
+      "options": [
+        { "value": "0-3", "label": "0-3 months" },
+        { "value": "3-6", "label": "3-6 months" },
+        { "value": "6-12", "label": "6-12 months" },
+        { "value": "12+", "label": "12+ months" }
+      ]
+    },
+    {
+      "technicalName": "bedrooms",
+      "exportName": "bedrooms",
+      "label": "Bedrooms",
+      "type": "select",
+      "required": true,
+      "defaultValue": "3",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5+", "label": "5+" }
+      ]
+    },
+    {
+      "technicalName": "bathrooms",
+      "exportName": "bathrooms",
+      "label": "Bathrooms",
+      "type": "select",
+      "required": true,
+      "defaultValue": "2",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "1.5", "label": "1.5" },
+        { "value": "2", "label": "2" },
+        { "value": "2.5", "label": "2.5" },
+        { "value": "3+", "label": "3+" }
+      ]
+    },
+    {
+      "technicalName": "propertyTypes",
+      "exportName": "property_types",
+      "label": "Property Types",
+      "type": "multi-select-chips",
+      "required": true,
+      "defaultValue": ["single-family"],
+      "options": [
+        { "value": "single-family", "label": "Single Family", "icon": "Home" },
+        { "value": "condo", "label": "Condo/Townhouse", "icon": "Building2" },
+        { "value": "multi-family", "label": "Multi-Family", "icon": "Building" },
+        { "value": "new-construction", "label": "New Construction", "icon": "Sparkles" }
+      ]
+    },
+    {
+      "technicalName": "topPriority",
+      "exportName": "top_priority",
+      "label": "Top Priority",
+      "type": "radio-chips",
+      "required": true,
+      "options": [
+        { "value": "location", "label": "Location", "icon": "MapPin" },
+        { "value": "space", "label": "Space/Size", "icon": "HomeIcon" },
+        { "value": "condition", "label": "Condition", "icon": "Zap" }
+      ]
+    },
+    {
+      "technicalName": "workSituation",
+      "exportName": "work_situation",
+      "label": "Work Situation",
+      "type": "radio-chips",
+      "required": true,
+      "defaultValue": "hybrid",
+      "options": [
+        { "value": "office", "label": "Office", "icon": "Briefcase" },
+        { "value": "hybrid", "label": "Hybrid", "icon": "Laptop" },
+        { "value": "remote", "label": "Remote", "icon": "Monitor" },
+        { "value": "retired", "label": "Retired", "icon": "Palmtree" }
+      ]
+    },
+    {
+      "technicalName": "hasChildren",
+      "exportName": "has_children",
+      "label": "Has Children",
+      "type": "toggle-chip",
+      "required": true,
+      "defaultValue": false,
+      "options": [
+        { "value": false, "label": "No Kids" },
+        { "value": true, "label": "Has Kids" }
+      ]
+    },
+    {
+      "technicalName": "lifestyleFocus",
+      "exportName": "lifestyle_focus",
+      "label": "Lifestyle Priority",
+      "type": "radio-chips",
+      "required": true,
+      "defaultValue": "suburban",
+      "options": [
+        { "value": "walkable", "label": "Walkable/Urban", "icon": "Building2" },
+        { "value": "suburban", "label": "Suburban", "icon": "Home" },
+        { "value": "rural", "label": "Rural/Private", "icon": "TreePine" }
+      ]
+    },
+    {
+      "technicalName": "agentInsights",
+      "exportName": "agent_insights",
+      "label": "Agent Insights",
+      "type": "textarea",
+      "required": true,
+      "minLength": 200,
+      "maxLength": 1200,
+      "placeholder": "Tell us about your buyer in your own words...",
+      "description": "Required narrative about the buyer (minimum 200 characters)"
+    }
+  ],
+  "webhookMetadata": {
+    "brokerage_slug": "duston-leddy",
+    "intake_pin": "847293"
+  }
+}
