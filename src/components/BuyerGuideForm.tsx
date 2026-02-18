@@ -496,28 +496,33 @@ const BuyerGuideForm: React.FC = () => {
                 <Controller
                   name="budgetRange"
                   control={control}
-                  render={({ field }) => (
-                    <div className="pt-2 pb-4">
-                      <div className="flex justify-between mb-4">
-                        <span className="font-heading font-semibold text-lg text-primary">
-                          {formatBudget(budgetSteps[field.value[0]])}
-                        </span>
-                        <span className="text-text-tertiary">to</span>
-                        <span className="font-heading font-semibold text-lg text-primary">
-                          {formatBudget(budgetSteps[field.value[1]])}
-                        </span>
-                      </div>
-                      <Slider
-                        defaultValue={field.value}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        min={0}
-                        max={budgetSteps.length - 1}
-                        step={1}
-                        minStepsBetweenThumbs={1}
-                      />
-                    </div>
-                  )}
+                    render={({ field }) => {
+                      const safeValue = Array.isArray(field.value) && field.value.length === 2
+                        ? field.value
+                        : [10, 38];
+                      return (
+                        <div className="pt-2 pb-4">
+                          <div className="flex justify-between mb-4">
+                            <span className="font-heading font-semibold text-lg text-primary">
+                              {formatBudget(budgetSteps[safeValue[0]])}
+                            </span>
+                            <span className="text-text-tertiary">to</span>
+                            <span className="font-heading font-semibold text-lg text-primary">
+                              {formatBudget(budgetSteps[safeValue[1]])}
+                            </span>
+                          </div>
+                          <Slider
+                            defaultValue={safeValue}
+                            value={safeValue}
+                            onValueChange={field.onChange}
+                            min={0}
+                            max={budgetSteps.length - 1}
+                            step={1}
+                            minStepsBetweenThumbs={1}
+                          />
+                        </div>
+                      );
+                    }}
                 />
               </div>
 
