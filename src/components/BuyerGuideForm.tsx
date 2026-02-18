@@ -26,7 +26,8 @@ const formSchema = z.object({
   buyerName: z.string().min(1, "Buyer's name is required"),
   buyerSituation: z.string().min(1, "Please select a situation"),
   currentHome: z.string().max(300, "Maximum 300 characters").optional(),
-  targetAreaPrimary: z.string().min(1, "Please select an area"),
+  state: z.string().min(1, "Please select a state"),
+  targetAreaPrimary: z.string().min(1, "Please select a region"),
   targetAreaSpecific: z.string().max(100, "Maximum 100 characters").optional(),
   commuteDestination: z.string().max(100, "Maximum 100 characters").optional(),
   budgetRange: z.array(z.number()).length(2),
@@ -72,72 +73,24 @@ const budgetSteps = [
   7750000, 8000000, 8250000, 8500000, 8750000, 9000000, 9250000, 9500000, 9750000, 10000000
 ];
 
-// Primary search area options with regions and major towns
-const primarySearchAreas = [
-  {
-    label: "BROAD REGIONS",
-    icon: "🗺️",
-    options: [
-      "New Hampshire Seacoast",
-      "New Hampshire Lakes Region",
-      "Northern New Hampshire",
-      "Southern New Hampshire",
-      "Southern Maine Coast",
-      "Greater Portland Area",
-      "Mid-Coast Maine",
-      "Western Maine Mountains",
-      "Northern/Central Maine"
-    ]
-  },
-  {
-    label: "MAJOR TOWNS - NEW HAMPSHIRE",
-    icon: "🏔️",
-    options: [
-      "Portsmouth",
-      "Dover",
-      "Exeter",
-      "Hampton",
-      "Rye",
-      "Durham",
-      "Wolfeboro",
-      "Laconia",
-      "Meredith",
-      "Manchester",
-      "Nashua",
-      "Concord",
-      "Hanover"
-    ]
-  },
-  {
-    label: "MAJOR TOWNS - MAINE",
-    icon: "🦞",
-    options: [
-      "Portland",
-      "South Portland",
-      "Kennebunk",
-      "Kennebunkport",
-      "Scarborough",
-      "Cape Elizabeth",
-      "Freeport",
-      "Brunswick",
-      "Camden",
-      "Rockland",
-      "Bar Harbor",
-      "York",
-      "Kittery",
-      "Biddeford",
-      "Gorham",
-      "Yarmouth",
-      "Bath",
-      "Belfast"
-    ]
-  },
-  {
-    label: "OTHER",
-    icon: "📍",
-    options: ["Specific Town (not listed above)"]
-  }
-];
+// Region options by state
+const regionsByState: Record<string, string[]> = {
+  "Maine": [
+    "Southern Maine Coast",
+    "Greater Portland Area",
+    "Mid-Coast Maine",
+    "Western Maine Mountains",
+    "Northern / Central Maine",
+    "Specific Town (not listed above)",
+  ],
+  "New Hampshire": [
+    "New Hampshire Seacoast",
+    "Southern New Hampshire",
+    "New Hampshire Lakes Region",
+    "New Hampshire White Mountains",
+    "Specific Town (not listed above)",
+  ],
+};
 
 const BuyerGuideForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -149,7 +102,8 @@ const BuyerGuideForm: React.FC = () => {
     buyerName: "",
     buyerSituation: "first-time",
     currentHome: "",
-    targetAreaPrimary: "New Hampshire Seacoast",
+    state: "",
+    targetAreaPrimary: "",
     targetAreaSpecific: "",
     commuteDestination: "",
     budgetRange: [10, 38], // Index for $500K and $1.2M
@@ -229,6 +183,7 @@ const BuyerGuideForm: React.FC = () => {
       buyer_name: data.buyerName,
       buyer_situation: data.buyerSituation,
       current_home: data.currentHome || "",
+      state: data.state,
       primary_search_area: data.targetAreaPrimary,
       specific_location_notes: data.targetAreaSpecific || "",
       commute_destination: data.commuteDestination || "",
@@ -430,47 +385,71 @@ const BuyerGuideForm: React.FC = () => {
                 />
               </div>
 
-              {/* Primary Search Area */}
+              {/* State */}
               <div>
                 <label className="block text-sm font-medium text-text-label mb-2">
-                  Where are they looking?
+                  What state are you looking in?
                 </label>
                 <Controller
-                  name="targetAreaPrimary"
+                  name="state"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        // Reset region when state changes
+                        setValue("targetAreaPrimary", "");
+                      }}
+                      value={field.value}
+                    >
                       <SelectTrigger className="h-12 text-base">
-                        <SelectValue placeholder="Select a region or major town">
-                          {field.value || "Select a region or major town"}
-                        </SelectValue>
+                        <SelectValue placeholder="Select a state" />
                       </SelectTrigger>
-                      <SelectContent className="max-h-80">
-                        {primarySearchAreas.map((group) => (
-                          <div key={group.label}>
-                            <div className="px-2 py-1.5 text-xs font-semibold text-text-tertiary uppercase tracking-wide bg-muted flex items-center gap-1.5">
-                              <span>{group.icon}</span>
-                              <span>{group.label}</span>
-                            </div>
-                            {group.options.map((option) => (
-                              <SelectItem 
-                                key={option} 
-                                value={option}
-                                className="pl-4"
-                              >
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </div>
-                        ))}
+                      <SelectContent>
+                        <SelectItem value="Maine">Maine</SelectItem>
+                        <SelectItem value="New Hampshire">New Hampshire</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                <p className="mt-1.5 text-sm text-text-tertiary">
-                  Select a region or major town
-                </p>
+                {errors.state && (
+                  <p className="mt-1.5 text-sm text-destructive">
+                    {errors.state.message}
+                  </p>
+                )}
               </div>
+
+              {/* Primary Search Area (conditional on state) */}
+              {watchedValues.state && (
+                <div>
+                  <label className="block text-sm font-medium text-text-label mb-2">
+                    Which region are you interested in?
+                  </label>
+                  <Controller
+                    name="targetAreaPrimary"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className="h-12 text-base">
+                          <SelectValue placeholder="Select a region" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {regionsByState[watchedValues.state]?.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.targetAreaPrimary && (
+                    <p className="mt-1.5 text-sm text-destructive">
+                      {errors.targetAreaPrimary.message}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Specific Location Details */}
               <div>

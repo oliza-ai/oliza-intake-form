@@ -44,77 +44,40 @@
       "placeholder": "Example: Renting in Boston, tired of city noise, wants yard for kids..."
     },
     {
-      "technicalName": "targetAreaPrimary",
-      "exportName": "primary_search_area",
-      "label": "Where are they looking?",
+      "technicalName": "state",
+      "exportName": "state",
+      "label": "What state are you looking in?",
       "type": "select",
       "required": true,
-      "defaultValue": "New Hampshire Seacoast",
-      "optionGroups": [
-        {
-          "label": "BROAD REGIONS",
-          "icon": "🗺️",
-          "options": [
-            "New Hampshire Seacoast",
-            "New Hampshire Lakes Region",
-            "Northern New Hampshire",
-            "Southern New Hampshire",
-            "Southern Maine Coast",
-            "Greater Portland Area",
-            "Mid-Coast Maine",
-            "Western Maine Mountains",
-            "Northern/Central Maine"
-          ]
-        },
-        {
-          "label": "MAJOR TOWNS - NEW HAMPSHIRE",
-          "icon": "🏔️",
-          "options": [
-            "Portsmouth",
-            "Dover",
-            "Exeter",
-            "Hampton",
-            "Rye",
-            "Durham",
-            "Wolfeboro",
-            "Laconia",
-            "Meredith",
-            "Manchester",
-            "Nashua",
-            "Concord",
-            "Hanover"
-          ]
-        },
-        {
-          "label": "MAJOR TOWNS - MAINE",
-          "icon": "🦞",
-          "options": [
-            "Portland",
-            "South Portland",
-            "Kennebunk",
-            "Kennebunkport",
-            "Scarborough",
-            "Cape Elizabeth",
-            "Freeport",
-            "Brunswick",
-            "Camden",
-            "Rockland",
-            "Bar Harbor",
-            "York",
-            "Kittery",
-            "Biddeford",
-            "Gorham",
-            "Yarmouth",
-            "Bath",
-            "Belfast"
-          ]
-        },
-        {
-          "label": "OTHER",
-          "icon": "📍",
-          "options": ["Specific Town (not listed above)"]
-        }
+      "options": [
+        { "value": "Maine", "label": "Maine" },
+        { "value": "New Hampshire", "label": "New Hampshire" }
       ]
+    },
+    {
+      "technicalName": "targetAreaPrimary",
+      "exportName": "primary_search_area",
+      "label": "Which region are you interested in?",
+      "type": "select",
+      "required": true,
+      "conditionalOn": "state",
+      "optionsByState": {
+        "Maine": [
+          "Southern Maine Coast",
+          "Greater Portland Area",
+          "Mid-Coast Maine",
+          "Western Maine Mountains",
+          "Northern / Central Maine",
+          "Specific Town (not listed above)"
+        ],
+        "New Hampshire": [
+          "New Hampshire Seacoast",
+          "Southern New Hampshire",
+          "New Hampshire Lakes Region",
+          "New Hampshire White Mountains",
+          "Specific Town (not listed above)"
+        ]
+      }
     },
     {
       "technicalName": "targetAreaSpecific",
