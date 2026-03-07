@@ -96,6 +96,7 @@ const BuyerGuideForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const defaultValues: FormData = {
     agentEmail: "",
@@ -170,6 +171,7 @@ const BuyerGuideForm: React.FC = () => {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    setSubmitError("");
     setSubmittedEmail(data.agentEmail);
 
     // Convert budget indices to actual values
@@ -209,21 +211,27 @@ const BuyerGuideForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`Webhook failed: ${response.status}`);
+      if (response.status === 202) {
+        console.log("Form submitted successfully:", payload);
+        localStorage.removeItem(STORAGE_KEY);
+        reset(defaultValues);
+        setIsSuccess(true);
+      } else {
+        // Non-2xx response — extract error message from body
+        let errorMessage = "Something went wrong. Please try again.";
+        try {
+          const body = await response.json();
+          if (body?.message) {
+            errorMessage = body.message;
+          }
+        } catch {
+          // couldn't parse JSON, use default
+        }
+        setSubmitError(errorMessage);
       }
-
-      console.log("Form submitted successfully:", payload);
-      localStorage.removeItem(STORAGE_KEY);
-      reset(defaultValues);
-      setIsSuccess(true);
     } catch (error) {
       console.error("Submission failed:", error);
-      toast({
-        title: "Submission failed",
-        description: "Please try again or contact support.",
-        variant: "destructive",
-      });
+      setSubmitError("Something went wrong. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -285,6 +293,11 @@ const BuyerGuideForm: React.FC = () => {
           className="bg-card rounded-xl shadow-lg p-6 md:p-8 animate-fade-in"
           style={{ animationDelay: "0.1s" }}
         >
+          {submitError && (
+            <div className="mb-6 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm">
+              {submitError}
+            </div>
+          )}
           {/* Section 1: Buyer Basics */}
           <div className="mb-8">
             <div className="space-y-5">
