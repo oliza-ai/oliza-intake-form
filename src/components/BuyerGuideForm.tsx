@@ -171,6 +171,7 @@ const BuyerGuideForm: React.FC = () => {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    setSubmitError("");
     setSubmittedEmail(data.agentEmail);
 
     // Convert budget indices to actual values
@@ -210,21 +211,27 @@ const BuyerGuideForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`Webhook failed: ${response.status}`);
+      if (response.status === 202) {
+        console.log("Form submitted successfully:", payload);
+        localStorage.removeItem(STORAGE_KEY);
+        reset(defaultValues);
+        setIsSuccess(true);
+      } else {
+        // Non-2xx response — extract error message from body
+        let errorMessage = "Something went wrong. Please try again.";
+        try {
+          const body = await response.json();
+          if (body?.message) {
+            errorMessage = body.message;
+          }
+        } catch {
+          // couldn't parse JSON, use default
+        }
+        setSubmitError(errorMessage);
       }
-
-      console.log("Form submitted successfully:", payload);
-      localStorage.removeItem(STORAGE_KEY);
-      reset(defaultValues);
-      setIsSuccess(true);
     } catch (error) {
       console.error("Submission failed:", error);
-      toast({
-        title: "Submission failed",
-        description: "Please try again or contact support.",
-        variant: "destructive",
-      });
+      setSubmitError("Something went wrong. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
