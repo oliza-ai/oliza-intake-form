@@ -167,12 +167,17 @@ const BuyerGuideForm: React.FC = () => {
     return () => clearTimeout(timer);
   }, [watchedValues]);
 
-  // Clear error when user edits any field
+  // Clear error when user edits any field (use serialized comparison to avoid clearing on re-render)
+  const watchedSerialized = JSON.stringify(watchedValues);
+  const prevWatchedRef = React.useRef(watchedSerialized);
   useEffect(() => {
-    if (submitError) {
-      setSubmitError("");
+    if (prevWatchedRef.current !== watchedSerialized) {
+      prevWatchedRef.current = watchedSerialized;
+      if (submitError) {
+        setSubmitError("");
+      }
     }
-  }, [watchedValues]);
+  }, [watchedSerialized]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
