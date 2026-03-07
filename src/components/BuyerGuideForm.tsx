@@ -216,24 +216,18 @@ const BuyerGuideForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-      if (response.status === 202) {
-        console.log("Form submitted successfully:", payload);
-        localStorage.removeItem(STORAGE_KEY);
-        reset(defaultValues);
-        setIsSuccess(true);
-      } else {
-        // Non-2xx response — extract error message from body
-        let errorMessage = "Something went wrong. Please try again.";
-        try {
-          const body = await response.json();
-          if (body?.message) {
-            errorMessage = body.message;
-          }
-        } catch {
-          // couldn't parse JSON, use default
-        }
-        setSubmitError(errorMessage);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setSubmitError(data?.message || "Something went wrong. Please try again.");
+        return;
       }
+
+      // Success flow
+      console.log("Form submitted successfully:", payload);
+      localStorage.removeItem(STORAGE_KEY);
+      reset(defaultValues);
+      setIsSuccess(true);
     } catch (error) {
       console.error("Submission failed:", error);
       setSubmitError("Something went wrong. Please check your connection and try again.");
