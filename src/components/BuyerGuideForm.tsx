@@ -217,10 +217,6 @@ const BuyerGuideForm: React.FC = () => {
       localStorage.removeItem(STORAGE_KEY);
       reset(defaultValues);
       setIsSuccess(true);
-      toast({
-        title: "Success!",
-        description: `Your guide for ${data.buyerName} is being generated. Check your email in 3-5 minutes.`,
-      });
     } catch (error) {
       console.error("Submission failed:", error);
       toast({
@@ -369,7 +365,7 @@ const BuyerGuideForm: React.FC = () => {
                   name="currentHome"
                   control={control}
                   render={({ field }) => (
-                    <div className="relative">
+                    <div>
                       <textarea
                         {...field}
                         placeholder="Example: Renting in Boston, tired of city noise, wants yard for kids..."
@@ -377,9 +373,11 @@ const BuyerGuideForm: React.FC = () => {
                         maxLength={300}
                         className="form-input min-h-[80px] max-h-[150px] resize-y"
                       />
-                      <span className="absolute bottom-2 right-3 text-xs text-text-tertiary">
-                        {field.value?.length || 0}/300
-                      </span>
+                      <div className="text-right mt-1">
+                        <span className="text-xs text-text-tertiary">
+                          {field.value?.length || 0}/300
+                        </span>
+                      </div>
                     </div>
                   )}
                 />
@@ -894,7 +892,7 @@ const BuyerGuideForm: React.FC = () => {
                 name="agentInsights"
                 control={control}
                 render={({ field }) => (
-                  <div className="relative">
+                  <div>
                     <textarea
                       {...field}
                       placeholder="Example: Sarah and Mike are relocating from Boston. She's a teacher who loves Prescott Park. They want a historic home with character near downtown. Deal-breaker: HOAs with strict rules. They kayak every weekend and need water access..."
@@ -902,11 +900,13 @@ const BuyerGuideForm: React.FC = () => {
                       maxLength={1200}
                       className="form-input min-h-[120px] max-h-[200px] resize-y"
                     />
-                    <span className={`absolute bottom-2 right-3 text-xs ${
-                      (field.value?.length || 0) < 200 ? "text-amber-500" : "text-text-tertiary"
-                    }`}>
-                      {field.value?.length || 0}/1200 {(field.value?.length || 0) < 200 && `(min 200)`}
-                    </span>
+                    <div className="text-right mt-1">
+                      <span className={`text-xs ${
+                        (field.value?.length || 0) < 200 ? "text-amber-500" : "text-text-tertiary"
+                      }`}>
+                        {field.value?.length || 0}/1200 {(field.value?.length || 0) < 200 && `(min 200)`}
+                      </span>
+                    </div>
                   </div>
                 )}
               />
