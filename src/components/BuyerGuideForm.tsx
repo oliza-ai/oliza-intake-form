@@ -96,6 +96,7 @@ const BuyerGuideForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const defaultValues: FormData = {
     agentEmail: "",
