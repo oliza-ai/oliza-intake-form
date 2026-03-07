@@ -293,6 +293,11 @@ const BuyerGuideForm: React.FC = () => {
           className="bg-card rounded-xl shadow-lg p-6 md:p-8 animate-fade-in"
           style={{ animationDelay: "0.1s" }}
         >
+          {submitError && (
+            <div className="mb-6 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm">
+              {submitError}
+            </div>
+          )}
           {/* Section 1: Buyer Basics */}
           <div className="mb-8">
             <div className="space-y-5">
