@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Check, Loader2, Home, Building2, Building, Sparkles, Briefcase, Laptop, Monitor, Palmtree, TreePine, MapPin, HomeIcon, Zap } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+
 import logo from "@/assets/duston-leddy-logo.png";
 
 // Determine webhook URL based on environment
@@ -167,7 +167,12 @@ const BuyerGuideForm: React.FC = () => {
     return () => clearTimeout(timer);
   }, [watchedValues]);
 
-  const { toast } = useToast();
+  // Clear error when user edits any field
+  useEffect(() => {
+    if (submitError) {
+      setSubmitError("");
+    }
+  }, [watchedValues]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
