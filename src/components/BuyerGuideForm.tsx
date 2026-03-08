@@ -187,6 +187,7 @@ const BuyerGuideForm: React.FC = () => {
     }
   }, [submitError]);
 
+  const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     setSubmitError("");
     setSubmittedEmail(data.agentEmail);
