@@ -81,14 +81,12 @@ const regionsByState: Record<string, string[]> = {
     "Mid-Coast Maine",
     "Western Maine Mountains",
     "Northern / Central Maine",
-    "Specific Town (not listed above)",
   ],
   "New Hampshire": [
     "New Hampshire Seacoast",
     "Southern New Hampshire",
     "New Hampshire Lakes Region",
     "New Hampshire White Mountains",
-    "Specific Town (not listed above)",
   ],
 };
 
