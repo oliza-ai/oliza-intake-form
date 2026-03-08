@@ -97,6 +97,7 @@ const BuyerGuideForm: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const errorRef = React.useRef<HTMLDivElement>(null);
 
   const defaultValues: FormData = {
     agentEmail: "",
@@ -179,6 +180,13 @@ const BuyerGuideForm: React.FC = () => {
     }
   }, [watchedSerialized]);
 
+  // Scroll error into view when it appears
+  useEffect(() => {
+    if (submitError && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [submitError]);
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     setSubmitError("");
@@ -213,6 +221,7 @@ const BuyerGuideForm: React.FC = () => {
     };
 
     try {
+      console.log("Submitting to:", WEBHOOK_URL);
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: {
@@ -221,10 +230,21 @@ const BuyerGuideForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      console.log("Response status:", response.status);
 
       if (!response.ok) {
-        setSubmitError(data?.message || "Something went wrong. Please try again.");
+        let errorMessage = "Something went wrong. Please try again.";
+        try {
+          const data = await response.json();
+          if (data?.message) {
+            errorMessage = data.message;
+          }
+        } catch {
+          // Response wasn't JSON, use default message
+          console.log("Response was not JSON");
+        }
+        setSubmitError(errorMessage);
+        setIsSubmitting(false);
         return;
       }
 
@@ -935,7 +955,7 @@ const BuyerGuideForm: React.FC = () => {
 
           {/* Submit Button */}
           {submitError && (
-            <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm">
+            <div ref={errorRef} className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm font-medium">
               {submitError}
             </div>
           )}
