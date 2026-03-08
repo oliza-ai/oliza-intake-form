@@ -213,6 +213,7 @@ const BuyerGuideForm: React.FC = () => {
     };
 
     try {
+      console.log("Submitting to:", WEBHOOK_URL);
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: {
@@ -221,10 +222,21 @@ const BuyerGuideForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      console.log("Response status:", response.status);
 
       if (!response.ok) {
-        setSubmitError(data?.message || "Something went wrong. Please try again.");
+        let errorMessage = "Something went wrong. Please try again.";
+        try {
+          const data = await response.json();
+          if (data?.message) {
+            errorMessage = data.message;
+          }
+        } catch {
+          // Response wasn't JSON, use default message
+          console.log("Response was not JSON");
+        }
+        setSubmitError(errorMessage);
+        setIsSubmitting(false);
         return;
       }
 
