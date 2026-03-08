@@ -948,7 +948,7 @@ const BuyerGuideForm: React.FC = () => {
 
           {/* Submit Button */}
           {submitError && (
-            <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm">
+            <div ref={errorRef} className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm font-medium">
               {submitError}
             </div>
           )}
