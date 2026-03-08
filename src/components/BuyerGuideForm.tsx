@@ -180,12 +180,13 @@ const BuyerGuideForm: React.FC = () => {
     }
   }, [watchedSerialized]);
 
-  // Scroll error into view when it appears
+  // Scroll error/validation alert into view when it appears
+  const errorsCount = Object.keys(errors).length;
   useEffect(() => {
-    if (submitError && errorRef.current) {
+    if ((submitError || errorsCount > 0) && errorRef.current) {
       errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-  }, [submitError]);
+  }, [submitError, errorsCount]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
