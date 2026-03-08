@@ -180,7 +180,13 @@ const BuyerGuideForm: React.FC = () => {
     }
   }, [watchedSerialized]);
 
-  const onSubmit = async (data: FormData) => {
+  // Scroll error into view when it appears
+  useEffect(() => {
+    if (submitError && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [submitError]);
+
     setIsSubmitting(true);
     setSubmitError("");
     setSubmittedEmail(data.agentEmail);
