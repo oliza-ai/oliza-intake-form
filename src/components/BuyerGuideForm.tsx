@@ -480,25 +480,6 @@ const BuyerGuideForm: React.FC = () => {
                 </div>
               )}
 
-              {/* Specific Location Details */}
-              <div>
-                <label className="block text-sm font-medium text-text-label mb-2">
-                  Specific Location Details{" "}
-                  <span className="text-text-tertiary font-normal">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  {...register("targetAreaSpecific")}
-                  placeholder="e.g., 'Rangeley area' or 'Portsmouth preferred, but open to Rye or New Castle'"
-                  maxLength={100}
-                  className="form-input"
-                />
-                {errors.targetAreaSpecific && (
-                  <p className="mt-1.5 text-sm text-destructive">
-                    {errors.targetAreaSpecific.message}
-                  </p>
-                )}
-              </div>
 
               {/* Commute Destination */}
               <div>
