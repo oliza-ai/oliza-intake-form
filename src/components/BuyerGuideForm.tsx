@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Check, Loader2, Home, Building2, Building, Sparkles, Briefcase, Laptop, Monitor, Palmtree, TreePine, MapPin, HomeIcon, Zap } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+
 import logo from "@/assets/duston-leddy-logo.png";
 
 // Determine webhook URL based on environment
@@ -81,14 +81,12 @@ const regionsByState: Record<string, string[]> = {
     "Mid-Coast Maine",
     "Western Maine Mountains",
     "Northern / Central Maine",
-    "Specific Town (not listed above)",
   ],
   "New Hampshire": [
     "New Hampshire Seacoast",
     "Southern New Hampshire",
     "New Hampshire Lakes Region",
     "New Hampshire White Mountains",
-    "Specific Town (not listed above)",
   ],
 };
 
@@ -96,6 +94,8 @@ const BuyerGuideForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const errorRef = React.useRef<HTMLDivElement>(null);
 
   const defaultValues: FormData = {
     agentEmail: "",
@@ -166,10 +166,29 @@ const BuyerGuideForm: React.FC = () => {
     return () => clearTimeout(timer);
   }, [watchedValues]);
 
-  const { toast } = useToast();
+  // Clear error when user edits any field (use serialized comparison to avoid clearing on re-render)
+  const watchedSerialized = JSON.stringify(watchedValues);
+  const prevWatchedRef = React.useRef(watchedSerialized);
+  useEffect(() => {
+    if (prevWatchedRef.current !== watchedSerialized) {
+      prevWatchedRef.current = watchedSerialized;
+      if (submitError) {
+        setSubmitError("");
+      }
+    }
+  }, [watchedSerialized]);
+
+  // Scroll error/validation alert into view when it appears
+  const errorsCount = Object.keys(errors).length;
+  useEffect(() => {
+    if ((submitError || errorsCount > 0) && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [submitError, errorsCount]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    setSubmitError("");
     setSubmittedEmail(data.agentEmail);
 
     // Convert budget indices to actual values
@@ -201,6 +220,7 @@ const BuyerGuideForm: React.FC = () => {
     };
 
     try {
+      console.log("Submitting to:", WEBHOOK_URL);
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: {
@@ -209,25 +229,32 @@ const BuyerGuideForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
+      console.log("Response status:", response.status);
+
       if (!response.ok) {
-        throw new Error(`Webhook failed: ${response.status}`);
+        let errorMessage = "Something went wrong. Please try again.";
+        try {
+          const data = await response.json();
+          if (data?.message) {
+            errorMessage = data.message;
+          }
+        } catch {
+          // Response wasn't JSON, use default message
+          console.log("Response was not JSON");
+        }
+        setSubmitError(errorMessage);
+        setIsSubmitting(false);
+        return;
       }
 
+      // Success flow
       console.log("Form submitted successfully:", payload);
       localStorage.removeItem(STORAGE_KEY);
       reset(defaultValues);
       setIsSuccess(true);
-      toast({
-        title: "Success!",
-        description: `Your guide for ${data.buyerName} is being generated. Check your email in 3-5 minutes.`,
-      });
     } catch (error) {
       console.error("Submission failed:", error);
-      toast({
-        title: "Submission failed",
-        description: "Please try again or contact support.",
-        variant: "destructive",
-      });
+      setSubmitError("Something went wrong. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -369,7 +396,7 @@ const BuyerGuideForm: React.FC = () => {
                   name="currentHome"
                   control={control}
                   render={({ field }) => (
-                    <div className="relative">
+                    <div>
                       <textarea
                         {...field}
                         placeholder="Example: Renting in Boston, tired of city noise, wants yard for kids..."
@@ -377,9 +404,11 @@ const BuyerGuideForm: React.FC = () => {
                         maxLength={300}
                         className="form-input min-h-[80px] max-h-[150px] resize-y"
                       />
-                      <span className="absolute bottom-2 right-3 text-xs text-text-tertiary">
-                        {field.value?.length || 0}/300
-                      </span>
+                      <div className="text-right mt-1">
+                        <span className="text-xs text-text-tertiary">
+                          {field.value?.length || 0}/300
+                        </span>
+                      </div>
                     </div>
                   )}
                 />
@@ -451,25 +480,6 @@ const BuyerGuideForm: React.FC = () => {
                 </div>
               )}
 
-              {/* Specific Location Details */}
-              <div>
-                <label className="block text-sm font-medium text-text-label mb-2">
-                  Specific Location Details{" "}
-                  <span className="text-text-tertiary font-normal">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  {...register("targetAreaSpecific")}
-                  placeholder="e.g., 'Rangeley area' or 'Portsmouth preferred, but open to Rye or New Castle'"
-                  maxLength={100}
-                  className="form-input"
-                />
-                {errors.targetAreaSpecific && (
-                  <p className="mt-1.5 text-sm text-destructive">
-                    {errors.targetAreaSpecific.message}
-                  </p>
-                )}
-              </div>
 
               {/* Commute Destination */}
               <div>
@@ -894,7 +904,7 @@ const BuyerGuideForm: React.FC = () => {
                 name="agentInsights"
                 control={control}
                 render={({ field }) => (
-                  <div className="relative">
+                  <div>
                     <textarea
                       {...field}
                       placeholder="Example: Sarah and Mike are relocating from Boston. She's a teacher who loves Prescott Park. They want a historic home with character near downtown. Deal-breaker: HOAs with strict rules. They kayak every weekend and need water access..."
@@ -902,11 +912,13 @@ const BuyerGuideForm: React.FC = () => {
                       maxLength={1200}
                       className="form-input min-h-[120px] max-h-[200px] resize-y"
                     />
-                    <span className={`absolute bottom-2 right-3 text-xs ${
-                      (field.value?.length || 0) < 200 ? "text-amber-500" : "text-text-tertiary"
-                    }`}>
-                      {field.value?.length || 0}/1200 {(field.value?.length || 0) < 200 && `(min 200)`}
-                    </span>
+                    <div className="text-right mt-1">
+                      <span className={`text-xs ${
+                        (field.value?.length || 0) < 200 ? "text-amber-500" : "text-text-tertiary"
+                      }`}>
+                        {field.value?.length || 0}/1200 {(field.value?.length || 0) < 200 && `(min 200)`}
+                      </span>
+                    </div>
                   </div>
                 )}
               />
@@ -921,7 +933,33 @@ const BuyerGuideForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Validation & Error Alerts */}
+          {Object.keys(errors).length > 0 && (
+            <div ref={errorRef} className="mb-4 rounded-lg border border-amber-500/50 bg-amber-50 dark:bg-amber-950/20 p-4 text-amber-800 dark:text-amber-200 text-sm font-medium">
+              <p className="font-semibold mb-1">Please complete the following fields:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                {errors.agentEmail && <li>Your Email</li>}
+                {errors.buyerName && <li>Buyer's Name</li>}
+                {errors.buyerSituation && <li>Their Situation</li>}
+                {errors.state && <li>State</li>}
+                {errors.targetAreaPrimary && <li>Region</li>}
+                {errors.budgetRange && <li>Budget Range</li>}
+                {errors.timeline && <li>Timeline</li>}
+                {errors.bedrooms && <li>Bedrooms</li>}
+                {errors.bathrooms && <li>Bathrooms</li>}
+                {errors.propertyTypes && <li>Property Types</li>}
+                {errors.topPriority && <li>Top Priority</li>}
+                {errors.workSituation && <li>Work Situation</li>}
+                {errors.lifestyleFocus && <li>Lifestyle Priority</li>}
+                {errors.agentInsights && <li>Agent Insights {errors.agentInsights.message?.includes("200") ? "(minimum 200 characters)" : ""}</li>}
+              </ul>
+            </div>
+          )}
+          {submitError && (
+            <div ref={errorRef} className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm font-medium">
+              {submitError}
+            </div>
+          )}
           <div className="space-y-3">
             <button
               type="submit"
