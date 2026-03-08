@@ -953,7 +953,28 @@ const BuyerGuideForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Validation & Error Alerts */}
+          {Object.keys(errors).length > 0 && (
+            <div ref={errorRef} className="mb-4 rounded-lg border border-amber-500/50 bg-amber-50 dark:bg-amber-950/20 p-4 text-amber-800 dark:text-amber-200 text-sm font-medium">
+              <p className="font-semibold mb-1">Please complete the following fields:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                {errors.agentEmail && <li>Your Email</li>}
+                {errors.buyerName && <li>Buyer's Name</li>}
+                {errors.buyerSituation && <li>Their Situation</li>}
+                {errors.state && <li>State</li>}
+                {errors.targetAreaPrimary && <li>Region</li>}
+                {errors.budgetRange && <li>Budget Range</li>}
+                {errors.timeline && <li>Timeline</li>}
+                {errors.bedrooms && <li>Bedrooms</li>}
+                {errors.bathrooms && <li>Bathrooms</li>}
+                {errors.propertyTypes && <li>Property Types</li>}
+                {errors.topPriority && <li>Top Priority</li>}
+                {errors.workSituation && <li>Work Situation</li>}
+                {errors.lifestyleFocus && <li>Lifestyle Priority</li>}
+                {errors.agentInsights && <li>Agent Insights {errors.agentInsights.message?.includes("200") ? "(minimum 200 characters)" : ""}</li>}
+              </ul>
+            </div>
+          )}
           {submitError && (
             <div ref={errorRef} className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm font-medium">
               {submitError}
