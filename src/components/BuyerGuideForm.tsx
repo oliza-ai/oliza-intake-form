@@ -43,7 +43,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const STORAGE_KEY = "buyer-guide-form-draft";
+
 
 // Helper to format budget
 const formatBudget = (value: number): string => {
