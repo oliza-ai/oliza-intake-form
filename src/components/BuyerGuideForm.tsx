@@ -291,8 +291,8 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
           <img
-            src={logo}
-            alt="Duston Leddy Real Estate"
+            src={brokerage.logoUrl}
+            alt={brokerage.name}
             className="h-10 md:h-12 mx-auto mb-6"
           />
           <h1 className="font-heading font-semibold text-[28px] md:text-[32px] text-foreground mb-2">
