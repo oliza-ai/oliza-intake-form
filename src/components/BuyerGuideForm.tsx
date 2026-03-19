@@ -104,10 +104,10 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
     bedrooms: "3",
     bathrooms: "2",
     propertyTypes: ["Single Family"],
-    topPriority: "",
-    workSituation: "",
+    topPriority: "schools",
+    workSituation: "hybrid",
     hasChildren: false,
-    lifestyleFocus: "",
+    lifestyleFocus: "suburban",
     agentInsights: "",
   };
 
