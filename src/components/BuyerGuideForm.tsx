@@ -189,8 +189,8 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
     const maxBudget = budgetSteps[data.budgetRange[1]];
 
     const payload = {
-      brokerage_slug: "duston-leddy",
-      intake_pin: "847293",
+      brokerage_slug: brokerage.slug,
+      intake_pin: brokerage.pin,
       agent_email: data.agentEmail,
       buyer_name: data.buyerName,
       buyer_situation: data.buyerSituation,
