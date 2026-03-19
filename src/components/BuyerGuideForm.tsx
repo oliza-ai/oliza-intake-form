@@ -290,10 +290,11 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
       <div className="w-full max-w-[600px] mx-auto">
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
-          <img
+           <img
             src={brokerage.logoUrl}
             alt={brokerage.name}
-            className="h-10 md:h-12 mx-auto mb-6"
+            className="mx-auto mb-6"
+            style={{ maxWidth: "300px", height: "auto", objectFit: "contain" }}
           />
           <h1 className="font-heading font-semibold text-[28px] md:text-[32px] text-foreground mb-2">
             Generate Buyer Guide
