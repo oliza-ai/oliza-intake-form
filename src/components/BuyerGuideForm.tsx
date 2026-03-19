@@ -72,24 +72,18 @@ const budgetSteps = [
   7750000, 8000000, 8250000, 8500000, 8750000, 9000000, 9250000, 9500000, 9750000, 10000000
 ];
 
-// Region options by state
-const regionsByState: Record<string, string[]> = {
-  "Maine": [
-    "Southern Maine Coast",
-    "Greater Portland Area",
-    "Mid-Coast Maine",
-    "Western Maine Mountains",
-    "Northern / Central Maine",
-  ],
-  "New Hampshire": [
-    "New Hampshire Seacoast",
-    "Southern New Hampshire",
-    "New Hampshire Lakes Region",
-    "New Hampshire White Mountains",
-  ],
-};
+interface BuyerGuideFormProps {
+  brokerage: BrokerageConfig;
+}
 
-const BuyerGuideForm: React.FC = () => {
+const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
+  const isGroupedRegions = !Array.isArray(brokerage.regions);
+  const groupedRegions = isGroupedRegions
+    ? (brokerage.regions as Record<string, string[]>)
+    : null;
+  const flatRegions = Array.isArray(brokerage.regions)
+    ? brokerage.regions
+    : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
