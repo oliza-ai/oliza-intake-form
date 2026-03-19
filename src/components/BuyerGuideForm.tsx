@@ -43,7 +43,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const STORAGE_KEY = "buyer-guide-form-draft";
+
 
 // Helper to format budget
 const formatBudget = (value: number): string => {
@@ -126,38 +126,6 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
 
   const watchedValues = watch();
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        Object.keys(parsed).forEach((key) => {
-          // Ensure budgetRange is always an array
-          if (key === "budgetRange") {
-            const value = parsed[key];
-            if (Array.isArray(value) && value.length === 2) {
-              setValue(key as keyof FormData, value);
-            }
-          } else if (key !== "targetArea") {
-            // Skip old targetArea field, use new fields
-            setValue(key as keyof FormData, parsed[key]);
-          }
-        });
-      } catch (e) {
-        console.error("Failed to parse saved form data");
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-  }, [setValue]);
-
-  // Auto-save to localStorage
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(watchedValues));
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [watchedValues]);
 
   // Clear error when user edits any field (use serialized comparison to avoid clearing on re-render)
   const watchedSerialized = JSON.stringify(watchedValues);
@@ -242,7 +210,7 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
 
       // Success flow
       console.log("Form submitted successfully:", payload);
-      localStorage.removeItem(STORAGE_KEY);
+      
       reset(defaultValues);
       setIsSuccess(true);
     } catch (error) {
