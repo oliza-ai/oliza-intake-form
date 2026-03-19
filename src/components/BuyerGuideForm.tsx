@@ -93,21 +93,21 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
   const defaultValues: FormData = {
     agentEmail: "",
     buyerName: "",
-    buyerSituation: "first-time",
+    buyerSituation: "",
     currentHome: "",
     state: "",
     targetAreaPrimary: "",
     targetAreaSpecific: "",
     commuteDestination: "",
-    budgetRange: [10, 38], // Index for $500K and $1.2M
-    timeline: "3-6",
-    bedrooms: "3",
-    bathrooms: "2",
-    propertyTypes: ["single-family"],
+    budgetRange: [0, 10],
+    timeline: "",
+    bedrooms: "",
+    bathrooms: "",
+    propertyTypes: [],
     topPriority: "",
-    workSituation: "hybrid",
+    workSituation: "",
     hasChildren: false,
-    lifestyleFocus: "suburban",
+    lifestyleFocus: "",
     agentInsights: "",
   };
 
@@ -290,10 +290,11 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
       <div className="w-full max-w-[600px] mx-auto">
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
-          <img
+           <img
             src={brokerage.logoUrl}
             alt={brokerage.name}
-            className="h-10 md:h-12 mx-auto mb-6"
+            className="mx-auto mb-6"
+            style={{ maxWidth: "300px", height: "auto", objectFit: "contain" }}
           />
           <h1 className="font-heading font-semibold text-[28px] md:text-[32px] text-foreground mb-2">
             Generate Buyer Guide
