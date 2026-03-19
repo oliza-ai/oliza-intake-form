@@ -5,8 +5,7 @@ import { z } from "zod";
 import { Check, Loader2, Home, Building2, Building, Sparkles, Briefcase, Laptop, Monitor, Palmtree, TreePine, MapPin, HomeIcon, Zap } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-import logo from "@/assets/duston-leddy-logo.png";
+import { BrokerageConfig } from "@/config/brokerages";
 
 // Determine webhook URL based on environment
 const getWebhookUrl = () => {
