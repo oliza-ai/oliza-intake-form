@@ -37,8 +37,8 @@ export const brokerages: Record<string, BrokerageConfig> = {
     logoUrl:
       "https://fczuwbuzglvzycfvirkt.supabase.co/storage/v1/object/public/branding/oliza-real-estate-logo.png",
     regions: [
-      "Midcoast Maine",
-      "NH Southern",
+      "Mid-Coast Maine",
+      "Southern New Hampshire",
       "Greater Portland Area",
     ],
   },
