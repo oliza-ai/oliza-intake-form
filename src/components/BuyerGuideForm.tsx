@@ -100,7 +100,7 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
     targetAreaSpecific: "",
     commuteDestination: "",
     budgetRange: [2, 14],
-    timeline: "3-6 months",
+    timeline: "3-6",
     bedrooms: "3",
     bathrooms: "2",
     propertyTypes: ["single-family"],
