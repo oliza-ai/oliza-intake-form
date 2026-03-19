@@ -407,42 +407,79 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
                 />
               </div>
 
-              {/* State */}
-              <div>
-                <label className="block text-sm font-medium text-text-label mb-2">
-                  What state are you looking in?
-                </label>
-                <Controller
-                  name="state"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(val) => {
-                        field.onChange(val);
-                        // Reset region when state changes
-                        setValue("targetAreaPrimary", "");
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="h-12 text-base">
-                        <SelectValue placeholder="Select a state" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Maine">Maine</SelectItem>
-                        <SelectItem value="New Hampshire">New Hampshire</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.state && (
-                  <p className="mt-1.5 text-sm text-destructive">
-                    {errors.state.message}
-                  </p>
-                )}
-              </div>
+              {/* State & Region selection */}
+              {groupedRegions ? (
+                <>
+                  {/* State selector for grouped regions */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-label mb-2">
+                      What state are you looking in?
+                    </label>
+                    <Controller
+                      name="state"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={(val) => {
+                            field.onChange(val);
+                            setValue("targetAreaPrimary", "");
+                          }}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="h-12 text-base">
+                            <SelectValue placeholder="Select a state" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.keys(groupedRegions).map((state) => (
+                              <SelectItem key={state} value={state}>
+                                {state}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.state && (
+                      <p className="mt-1.5 text-sm text-destructive">
+                        {errors.state.message}
+                      </p>
+                    )}
+                  </div>
 
-              {/* Primary Search Area (conditional on state) */}
-              {watchedValues.state && (
+                  {/* Region selector (shown after state is picked) */}
+                  {watchedValues.state && (
+                    <div>
+                      <label className="block text-sm font-medium text-text-label mb-2">
+                        Which region are you interested in?
+                      </label>
+                      <Controller
+                        name="targetAreaPrimary"
+                        control={control}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger className="h-12 text-base">
+                              <SelectValue placeholder="Select a region" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {groupedRegions[watchedValues.state]?.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.targetAreaPrimary && (
+                        <p className="mt-1.5 text-sm text-destructive">
+                          {errors.targetAreaPrimary.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : flatRegions ? (
+                /* Flat region list — no state selector needed */
                 <div>
                   <label className="block text-sm font-medium text-text-label mb-2">
                     Which region are you interested in?
@@ -456,7 +493,7 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
                           <SelectValue placeholder="Select a region" />
                         </SelectTrigger>
                         <SelectContent>
-                          {regionsByState[watchedValues.state]?.map((option) => (
+                          {flatRegions.map((option) => (
                             <SelectItem key={option} value={option}>
                               {option}
                             </SelectItem>
@@ -471,8 +508,7 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
                     </p>
                   )}
                 </div>
-              )}
-
+              ) : null}
 
               {/* Commute Destination */}
               <div>
