@@ -262,7 +262,7 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
             src={brokerage.logoUrl}
             alt={brokerage.name}
             className="mx-auto mb-6"
-            style={{ maxWidth: "300px", height: "auto", objectFit: "contain" }}
+            style={{ maxWidth: brokerage.slug === "oliza-real-estate" ? "225px" : "300px", height: "auto", objectFit: "contain" }}
           />
           <h1 className="font-heading font-semibold text-[28px] md:text-[32px] text-foreground mb-2">
             Generate Buyer Guide
