@@ -210,7 +210,7 @@ const BuyerGuideForm: React.FC<BuyerGuideFormProps> = ({ brokerage }) => {
 
       // Success flow
       console.log("Form submitted successfully:", payload);
-      localStorage.removeItem(STORAGE_KEY);
+      
       reset(defaultValues);
       setIsSuccess(true);
     } catch (error) {
