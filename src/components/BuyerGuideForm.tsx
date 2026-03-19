@@ -25,7 +25,7 @@ const formSchema = z.object({
   buyerName: z.string().min(1, "Buyer's name is required"),
   buyerSituation: z.string().min(1, "Please select a situation"),
   currentHome: z.string().max(300, "Maximum 300 characters").optional(),
-  state: z.string().min(1, "Please select a state"),
+  state: z.string().optional(),
   targetAreaPrimary: z.string().min(1, "Please select a region"),
   targetAreaSpecific: z.string().max(100, "Maximum 100 characters").optional(),
   commuteDestination: z.string().max(100, "Maximum 100 characters").optional(),
